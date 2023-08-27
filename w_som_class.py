@@ -1,65 +1,64 @@
 import pandas as pd
-
-class WineRecommendation:
-    def __init__(self):
-        # Food and Wine Variety DataFrame
-        self.food_wine_df = pd.DataFrame({
-            'food': ['beef', 'chicken', 'chicken', 'chicken'],
-            'wine_variety_id': [1, 2, 3, 4]
-        })
-
-        # Wine Variety DataFrame
-        self.wine_variety_df = pd.DataFrame({
-            'id': [1, 2, 3, 4],
-            'wine_variety': ['Cabernet Sauvignon', 'Chardonnay', 'Pinot Noir', 'Sauvignon Blanc']
-        })
-
-        # Brand DataFrame
-        self.brand_df = pd.DataFrame({
-            'id': list(range(1, 17)),
-            'brand': ['Robert Mondavi', 'Silver Oak', 'Caymus', 'Beringer', 
-                      'Kendall-Jackson', 'La Crema', 'Sonoma-Cutrer', 'Cakebread Cellars', 
-                      'Bouchard Aîné & Fils', 'Louis Latour', 'Joseph Drouhin', 'Domaine Faiveley', 
-                      'Kim Crawford', 'Cloudy Bay', 'Oyster Bay', 'Whitehaven']
-        })
-
-        # Wine Variety and Brand Relation DataFrame
-        self.wine_brand_relation_df = pd.DataFrame({
-            'wine_variety_id': [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
-            'brand_id': list(range(1, 17))
-        })
-
-    def recommend_based_on_food_and_brand(self, food, preferred_brand=None):
-        # Get wine variety IDs for the given food
-        wine_variety_ids = self.food_wine_df[self.food_wine_df['food'] == food]['wine_variety_id'].tolist()
-
-        # Get brand IDs for these wine varieties
-        brand_ids = self.wine_brand_relation_df[self.wine_brand_relation_df['wine_variety_id'].isin(wine_variety_ids)]['brand_id'].tolist()
-
-        # Filter by the preferred brand if given
-        if preferred_brand:
-            recommended_brands = self.brand_df[(self.brand_df['id'].isin(brand_ids)) & (self.brand_df['brand'] == preferred_brand)]
-        else:
-            recommended_brands = self.brand_df[self.brand_df['id'].isin(brand_ids)].groupby('id').apply(lambda x: x.sample(2)).reset_index(drop=True)
-        
-        recommended_brands['wine_variety'] = recommended_brands['id'].map(self.wine_brand_relation_df.set_index('brand_id')['wine_variety_id']).map(self.wine_variety_df.set_index('id')['wine_variety'])
-
-        return recommended_brands[['wine_variety', 'brand']]
+import random
 
 class VirtualSommelier:
     def __init__(self):
-        self.wine_recommender = WineRecommendation()
-
+        # Setting up the multi-index DataFrame
+        data = {
+            ('Cabernet Sauvignon', 'Robert Mondavi'): {'description': 'Rich and flavorful'},
+            ('Cabernet Sauvignon', 'Silver Oak'): {'description': 'Bold and spicy'},
+            ('Cabernet Sauvignon', 'Caymus'): {'description': 'Smooth and velvety'},
+            ('Cabernet Sauvignon', 'Beringer'): {'description': 'Bright and crisp'},
+            ('Chardonnay', 'Kendall-Jackson'): {'description': 'Buttery and oaky'},
+            ('Chardonnay', 'La Crema'): {'description': 'Fresh and zesty'},
+            ('Chardonnay', 'Sonoma-Cutrer'): {'description': 'Rich and full-bodied'},
+            ('Chardonnay', 'Cakebread Cellars'): {'description': 'Mineral-driven'},
+            ('Pinot Noir', 'Bouchard Aîné & Fils'): {'description': 'Elegant and refined'},
+            ('Pinot Noir', 'Louis Latour'): {'description': 'Berry-rich'},
+            ('Pinot Noir', 'Joseph Drouhin'): {'description': 'Earthy tones'},
+            ('Pinot Noir', 'Domaine Faiveley'): {'description': 'Robust and lingering'},
+            ('Sauvignon Blanc', 'Kim Crawford'): {'description': 'Zesty and tropical'},
+            ('Sauvignon Blanc', 'Cloudy Bay'): {'description': 'Crisp and aromatic'},
+            ('Sauvignon Blanc', 'Oyster Bay'): {'description': 'Lush and balanced'},
+            ('Sauvignon Blanc', 'Whitehaven'): {'description': 'Bright and fruity'}
+        }
+        self.wine_data_df = pd.DataFrame(data).T
+        
+    def recommend_wines(self, food):
+        # Mapping food to wine varieties
+        food_wine_map = {
+            'beef': 'Cabernet Sauvignon',
+            'chicken': 'Chardonnay',
+            'pork': 'Pinot Noir',
+            'fish': 'Sauvignon Blanc'
+        }
+        
+        wine_variety = food_wine_map.get(food)
+        if not wine_variety:
+            print("Sorry, I don't have a recommendation for that food.")
+            return
+        
+        brands_for_variety = self.wine_data_df.loc[wine_variety].index.tolist()
+        # Randomly select two brands
+        selected_brands = random.sample(brands_for_variety, 2)
+        
+        recommendations = []
+        for brand in selected_brands:
+            description = self.wine_data_df.loc[(wine_variety, brand), 'description']
+            recommendations.append((wine_variety, brand, description))
+        
+        return recommendations
+    
     def interact_with_user(self):
         print("Welcome to the Virtual Sommelier!")
         food = input("What food are you eating? (e.g., beef, chicken): ")
-        preferred_brand = input("Do you have a preferred wine brand? (Leave blank for any): ")
-
-        recommended_wines = self.wine_recommender.recommend_based_on_food_and_brand(food, preferred_brand)
-        print(f"For {food}, I recommend:")
         
-        for _, row in recommended_wines.iterrows():
-            print(f"- {row['wine_variety']} from brand: {row['brand']}")
+        recommended_wines = self.recommend_wines(food)
+        if recommended_wines:
+            print(f"\nFor {food}, I recommend:")
+            for wine_variety, brand, description in recommended_wines:
+                print(f"- {wine_variety} from {brand}: {description}")
+        print("\nEnjoy your meal and wine pairing!")
 
 if __name__ == "__main__":
     sommelier = VirtualSommelier()
