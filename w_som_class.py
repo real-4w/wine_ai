@@ -24,11 +24,12 @@ class WineRecommendation:
         # First, get the wine varieties for the food
         wine_varieties = self.food_wine_df[self.food_wine_df['food'] == food]['wine_variety'].tolist()
 
-        # Then, filter wine brands by those varieties and, optionally, by the preferred brand
+        # Filter wine brands by those varieties and, optionally, by the preferred brand
         if preferred_brand:
             recommended_brands = self.wine_brand_df[(self.wine_brand_df['wine_variety'].isin(wine_varieties)) & (self.wine_brand_df['brand'] == preferred_brand)]
         else:
             recommended_brands = self.wine_brand_df[self.wine_brand_df['wine_variety'].isin(wine_varieties)]
+            recommended_brands = recommended_brands.groupby('wine_variety').apply(lambda x: x.sample(2)).reset_index(drop=True)
         
         return recommended_brands
 
