@@ -1,2 +1,2 @@
 # wine_ai
-Experimental AI for wine recommendation
+Experimental code torwards and AI for wine recommendation
