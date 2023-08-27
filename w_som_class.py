@@ -8,10 +8,16 @@ class WineRecommendation:
             'wine_variety': ['Cabernet Sauvignon', 'Chardonnay', 'Pinot Noir', 'Sauvignon Blanc']
         })
 
-        # Wine and Brand DataFrame
+        # Wine and Brand DataFrame with multiple brands per variety
         self.wine_brand_df = pd.DataFrame({
-            'wine_variety': ['Cabernet Sauvignon', 'Merlot', 'Shiraz', 'Chardonnay', 'Pinot Noir', 'Sauvignon Blanc', 'Riesling'],
-            'brand': ['Robert Mondavi', 'Barefoot', 'Penfolds', 'Kendall-Jackson', 'Bouchard Aîné & Fils', 'Kim Crawford', 'Chateau Ste. Michelle']
+            'wine_variety': ['Cabernet Sauvignon', 'Cabernet Sauvignon', 'Cabernet Sauvignon', 'Cabernet Sauvignon', 
+                             'Chardonnay', 'Chardonnay', 'Chardonnay', 'Chardonnay', 
+                             'Pinot Noir', 'Pinot Noir', 'Pinot Noir', 'Pinot Noir', 
+                             'Sauvignon Blanc', 'Sauvignon Blanc', 'Sauvignon Blanc', 'Sauvignon Blanc'],
+            'brand': ['Robert Mondavi', 'Silver Oak', 'Caymus', 'Beringer', 
+                      'Kendall-Jackson', 'La Crema', 'Sonoma-Cutrer', 'Cakebread Cellars', 
+                      'Bouchard Aîné & Fils', 'Louis Latour', 'Joseph Drouhin', 'Domaine Faiveley', 
+                      'Kim Crawford', 'Cloudy Bay', 'Oyster Bay', 'Whitehaven']
         })
 
     def recommend_based_on_food_and_brand(self, food, preferred_brand=None):
