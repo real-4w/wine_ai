@@ -23,8 +23,8 @@ class VirtualSommelier:
             ('Sauvignon Blanc', 'Whitehaven'): {'description': 'Bright and fruity'}
         }
         self.wine_data_df = pd.DataFrame(data).T
-        
-    def recommend_wines(self, food):
+
+    def recommend_wines(self, food, favorite_brands):
         # Mapping food to wine varieties
         food_wine_map = {
             'beef': 'Cabernet Sauvignon',
@@ -39,11 +39,18 @@ class VirtualSommelier:
             return
         
         brands_for_variety = self.wine_data_df.loc[wine_variety].index.tolist()
-        # Randomly select two brands
-        selected_brands = random.sample(brands_for_variety, 2)
         
+        # Prioritize favorite brands in the recommendations
+        prioritized_brands = [brand for brand in favorite_brands if brand in brands_for_variety]
+        
+        # If fewer than 2 favorite brands are suitable, fill in with other brands
+        while len(prioritized_brands) < 2:
+            brand = random.choice(brands_for_variety)
+            if brand not in prioritized_brands:
+                prioritized_brands.append(brand)
+
         recommendations = []
-        for brand in selected_brands:
+        for brand in prioritized_brands:
             description = self.wine_data_df.loc[(wine_variety, brand), 'description']
             recommendations.append((wine_variety, brand, description))
         
@@ -51,9 +58,14 @@ class VirtualSommelier:
     
     def interact_with_user(self):
         print("Welcome to the Virtual Sommelier!")
+        
+        # Get favorite brands
+        favorite_brands_input = input("What are some of your favorite wine brands? (Separate them by commas): ")
+        favorite_brands = [brand.strip() for brand in favorite_brands_input.split(",")]
+        
         food = input("What food are you eating? (e.g., beef, chicken): ")
         
-        recommended_wines = self.recommend_wines(food)
+        recommended_wines = self.recommend_wines(food, favorite_brands)
         if recommended_wines:
             print(f"\nFor {food}, I recommend:")
             for wine_variety, brand, description in recommended_wines:
